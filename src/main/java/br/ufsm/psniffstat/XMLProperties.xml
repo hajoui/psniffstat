@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : XMLProperties.xml
+    Created on : May 23, 2009, 11:25 AM
+    Author     : Tulkas
+    Description:
+        Purpose of the document follows.
+-->
+
+<sniff2DBData  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+   xmlns:ns0='http://xml.netbeans.org/schema/XMLProperties'
+   xsi:schemaLocation='http://xml.netbeans.org/schema/XMLProperties XMLProperties.xsd'>
+    <Sniffer>
+        <port>80</port>
+        <intervalOfAnalysis>1</intervalOfAnalysis>
+        <ammountOfIntervals>-1</ammountOfIntervals>
+    </Sniffer>
+    <Filters>
+        <tcp>1</tcp>
+        <udp>1</udp>
+        <icmp>1</icmp>
+        <tcpAck>1</tcpAck>
+        <tcpFin>1</tcpFin>
+        <tcpSyn>1</tcpSyn>
+    </Filters>
+    <Sockets>
+        <status>1</status>
+        <port>7000</port>
+    </Sockets>
+</sniff2DBData>
