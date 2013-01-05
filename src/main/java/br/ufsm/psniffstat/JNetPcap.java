@@ -43,7 +43,7 @@ public class JNetPcap {
     }
     
     private void chooseNetworkDevice() {
-        List<PcapIf> alldevs = new ArrayList<PcapIf>(); // Will be filled with NICs
+        List<PcapIf> alldevs = new ArrayList<>(); // Will be filled with NICs
         int r = Pcap.findAllDevs(alldevs, errbuf);
         if (r == Pcap.NOT_OK || alldevs.isEmpty()) {
             System.err.println("Não foi possível ler uma lista de dispositivos. " +
