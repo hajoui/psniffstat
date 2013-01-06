@@ -375,8 +375,9 @@ public class XMLProperties {
         saxFactory = SAXParserFactory.newInstance();
         try {
             saxParser = saxFactory.newSAXParser();
-            saxParser.parse(new File(new URI (getClass().getResource("XMLProperties.xml").toString())), 
-                                     new XMLReader());
+            //saxParser.parse(new File(new URI (getClass().getResource("/XMLProperties.xml").toString())), 
+                                     //new XMLReader());
+            saxParser.parse(getClass().getResourceAsStream("XMLProperties.xml"), new XMLReader());
         } catch (Throwable err) {
             err.printStackTrace();
         }
