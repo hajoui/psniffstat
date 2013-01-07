@@ -1,15 +1,13 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+package br.ufsm.psniffstat.sniffer;
 
-package br.ufsm.psniffstat;
-
+import br.ufsm.psniffstat.XMLProperties;
+import br.ufsm.psniffstat.database.DBData;
+import br.ufsm.psniffstat.database.DBDataSync;
 import java.sql.Timestamp;
 import java.util.Date;
 
 /**
- *
+ * This class represents sniffing thread and uses DBDataSync to store in database
  * @author Adler
  */
 public class SnifferCMD extends Thread {
@@ -45,7 +43,7 @@ public class SnifferCMD extends Thread {
             dbData = new DBData(xmlProps.getFilters().getNumberOfActivatedFilters());
             dbData.setTimestamp(tsp);
             dbData.setCounters(jNetPcap.getCounters());
-            dbDataSync.addItem(dbData);
+            dbDataSync.addItem(dbData);//Storage action
             jNetPcap.zeroCounters();
             if (xmlProps.getAmmountIntervals() != -1) {
                 i++;

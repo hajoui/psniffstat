@@ -1,5 +1,6 @@
-package br.ufsm.psniffstat;
+package br.ufsm.psniffstat.sniffer;
 
+import br.ufsm.psniffstat.XMLProperties;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -10,14 +11,14 @@ import org.jnetpcap.PcapBpfProgram;
 import org.jnetpcap.PcapIf;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JPacketHandler;
-import org.jnetpcap.packet.Payload;
 import org.jnetpcap.protocol.network.Icmp;
 import org.jnetpcap.protocol.tcpip.Http;
 import org.jnetpcap.protocol.tcpip.Tcp;
 import org.jnetpcap.protocol.tcpip.Udp;
 
 /**
- *
+ * JNetPcap is the wrapper class which allows sniffer threads to execute libpcap
+ * actions based on configured filters
  * @author Tulkas
  */
 public class JNetPcap {
@@ -25,12 +26,11 @@ public class JNetPcap {
     private int deviceID;
     private PcapIf device;
     private Pcap pcap;
-    private JPacketHandler<String> handler;
+    private JPacketHandler<String> handler; //Packet administrator
     private StringBuilder errbuf = new StringBuilder();
     private Tcp tcpHeaderModel = new Tcp();
     private Udp udpHeaderModel = new Udp();
     private Icmp icmpHeaderModel = new Icmp();
-    private Payload payloadHeaderModel = new Payload();
     Http htt = new Http();
     private int tcpAcc, udpAcc, icmpAcc, tcpAckAcc, tcpFinAcc, tcpSynAcc;
     private XMLProperties xmlProps;
@@ -38,10 +38,16 @@ public class JNetPcap {
     public JNetPcap(XMLProperties xmlProps) {
         tcpAcc = udpAcc = icmpAcc = tcpAckAcc = tcpFinAcc = tcpSynAcc = -1;
         this.xmlProps = xmlProps;
+        //sets configured counters at 0
         zeroCountersInternal();
+        //asks to the user which NIC should be used
         chooseNetworkDevice();
     }
     
+    /**
+     * Search the available devices and if it has success asks to the user wich NIC
+     * should be sniffed
+     */
     private void chooseNetworkDevice() {
         List<PcapIf> alldevs = new ArrayList<>(); // Will be filled with NICs
         int r = Pcap.findAllDevs(alldevs, errbuf);
@@ -68,6 +74,9 @@ public class JNetPcap {
         System.out.printf("\nEscolhido o dispositivo: '%s'.\n", device.getDescription());
     }
 
+    /**
+     * Opens network device to start package capture
+     */
     public void openNetworkDevice() {
         int snaplen = 64 * 1024;           // Captura todos pacotes, sem truncar
         int flags = Pcap.MODE_PROMISCUOUS; // Captura todos pacotes
@@ -89,6 +98,9 @@ public class JNetPcap {
             System.exit(-1);
         }
         handler = new JPacketHandler<String>() {
+            /**
+             * Increments the packets counters based on its headers
+             */
             @Override
             public void nextPacket(JPacket packet, String user) {
                 if (packet.hasHeader(tcpHeaderModel)) {
@@ -123,6 +135,9 @@ public class JNetPcap {
         };
     }
     
+    /**
+     * Releases the NIC and captures
+     */
     public void dispatch() {
         Date today = new Date();
         Timestamp tsp = new Timestamp(today.getTime());
@@ -133,13 +148,20 @@ public class JNetPcap {
         System.out.println("disp after: " + tsp2.toString());
     }
     
+    /**
+     * Closes the NIC
+     */
     public void close() {
         pcap.close();
     }
     
+    /*
+     * Builds jnetpcap filter expression based on active filters at FiltersStatus
+     * @see FilterStatus
+     */
     private String buildExpression() {
         String filter = "";
-        ArrayList<String> separatedFilters = new ArrayList<String>();
+        ArrayList<String> separatedFilters = new ArrayList<>();
         FiltersStatus fs = xmlProps.getFilters();
         if (fs.isTCPActivated()) {
             separatedFilters.add("tcp");
@@ -172,6 +194,9 @@ public class JNetPcap {
         return filter;
     }
     
+    /*
+     * Sets internal counters at 0
+     */
     private void zeroCountersInternal() {
         FiltersStatus fs = xmlProps.getFilters();
         if (fs.isTCPActivated()) {
@@ -194,6 +219,9 @@ public class JNetPcap {
         }
     }
     
+    /**
+     * Sets packages counters at 0
+     */
     public void zeroCounters() {
         if (tcpAcc != -1) {
             tcpAcc = 0;
@@ -215,6 +243,10 @@ public class JNetPcap {
         }
     }
     
+    /**
+     * Returns array values based on filters status
+     * @return array that represents counters values
+     */
     public int[] getCounters() {
         int[] counters = new int[xmlProps.getFilters().getNumberOfActivatedFilters()];
         int index = 0;

@@ -1,12 +1,7 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-package br.ufsm.psniffstat;
+package br.ufsm.psniffstat.sniffer;
 
 /**
- *
+ * This class holds configuration flags for Sniffer configuration
  * @author Tulkas
  */
 public class FiltersStatus {

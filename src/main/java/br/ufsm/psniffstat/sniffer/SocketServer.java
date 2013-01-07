@@ -3,8 +3,9 @@
  * and open the template in the editor.
  */
 
-package br.ufsm.psniffstat;
+package br.ufsm.psniffstat.sniffer;
 
+import br.ufsm.psniffstat.database.DBData;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;

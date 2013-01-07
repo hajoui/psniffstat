@@ -1,10 +1,6 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package br.ufsm.psniffstat;
 
+import br.ufsm.psniffstat.sniffer.FiltersStatus;
 import java.io.File;
 import java.net.URI;
 import java.text.SimpleDateFormat;
@@ -30,7 +26,7 @@ public class XMLProperties {
     private int ammountOfIntervals;
     private int portToFilter;
     
-    // Database related
+    // Database related properties
     private String dbName;
     private String dbHostName;
     private String dbPort;
@@ -51,6 +47,10 @@ public class XMLProperties {
         readXML();
     }
     
+    /**
+     * Inner class designed to handle Sax Parsing functions
+     * this class and methods populate XMLProperties class properties
+     */
     private class XMLReader extends DefaultHandler {
         
         private boolean onSniffer, onDatabase, onFilters, onSockets;
@@ -377,7 +377,7 @@ public class XMLProperties {
             saxParser = saxFactory.newSAXParser();
             //saxParser.parse(new File(new URI (getClass().getResource("/XMLProperties.xml").toString())), 
                                      //new XMLReader());
-            saxParser.parse(getClass().getResourceAsStream("XMLProperties.xml"), new XMLReader());
+            saxParser.parse(getClass().getResourceAsStream("XMLProperties.xml"), new XMLReader());            
         } catch (Throwable err) {
             err.printStackTrace();
         }

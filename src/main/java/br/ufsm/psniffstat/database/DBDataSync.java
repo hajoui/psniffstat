@@ -1,23 +1,20 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+package br.ufsm.psniffstat.database;
 
-package br.ufsm.psniffstat;
+import br.ufsm.psniffstat.XMLProperties;
 
 /**
- *
+ * This class is designed to start and handle database operations
  * @author Tulkas
  */
 public class DBDataSync {
-
-    private XMLProperties xmlProps;
     private DBData dbData;
     private int numActiveFilters;
     private boolean valueWritten;
     
+    /**
+     * @param xmlProps sniffer configuration properties
+     */
     public DBDataSync(XMLProperties xmlProps) {
-        this.xmlProps = xmlProps;
         numActiveFilters = xmlProps.getFilters().getNumberOfActivatedFilters();
         dbData = new DBData(numActiveFilters);
         valueWritten = false;

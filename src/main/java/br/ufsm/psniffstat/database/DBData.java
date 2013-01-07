@@ -1,15 +1,12 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-package br.ufsm.psniffstat;
+package br.ufsm.psniffstat.database;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
 
 /**
- *
+ * Represents database table structure with the structure
+ * <p>
+ * tsp|counter[0]|counter[1]|...
  * @author Tulkas
  */
 public class DBData implements Serializable {

@@ -1,12 +1,11 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+package br.ufsm.psniffstat.database;
 
-package br.ufsm.psniffstat;
+import br.ufsm.psniffstat.XMLProperties;
+import br.ufsm.psniffstat.sniffer.SocketServer;
 
 /**
- *
+ * DataManager is designed to read values from DBDataSync and store them into
+ * the configured database
  * @author Tulkas
  */
 public class DataManager extends Thread {
@@ -21,12 +20,17 @@ public class DataManager extends Thread {
     public DataManager(XMLProperties xmlProps, DBDataSync dbds) {
         this.xmlProps = xmlProps;
         this.dbds = dbds;
+        //Sets fastAccess
         if (xmlProps.isFatOn()) {
             dbFastAccess = new DBFastAccess(xmlProps);
         }
+        
+        //Initialize historical access
         if (xmlProps.isArchiveOn()) {
             dbArchive = new DBArchive(xmlProps);
         }
+        
+        //Initialize socket access
         if (xmlProps.isSocketOn()) {
             socketServer = new SocketServer(xmlProps.getSocketPort());
         }

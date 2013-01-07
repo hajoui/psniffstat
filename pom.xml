@@ -32,9 +32,22 @@
                     </archive>
                 </configuration>
             </plugin>
-            
-            
             <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <!--plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
                     <descriptorRefs>
@@ -54,9 +67,10 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin-->
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
+                <version>2.3</version>
                 <executions>
                     <execution>
                         <id>copy-prod-resources</id>
@@ -78,11 +92,6 @@
                     </execution>
                 </executions>
             </plugin>
-            
-        </plugins>
-    </build>
-    <reporting>
-        <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
@@ -92,9 +101,20 @@
                     <docletPath>/home/tuxtor/Bibliotecas Java/yworks-uml-doclet-3.0_02-jdk1.5/lib/ydoc.jar:/home/tuxtor/Bibliotecas Java/yworks-uml-doclet-3.0_02-jdk1.5/resources</docletPath>
                     <additionalparam>-umlautogen</additionalparam>
                 </configuration>
+                <executions>
+                    <execution>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>javadoc</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
-    </reporting>
+    </build>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>

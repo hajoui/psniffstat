@@ -3,16 +3,15 @@
  * and open the template in the editor.
  */
 
-package br.ufsm.psniffstat;
+package br.ufsm.psniffstat.database;
 
-
+import br.ufsm.psniffstat.sniffer.FiltersStatus;
+import br.ufsm.psniffstat.XMLProperties;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,35 +19,29 @@ import java.util.logging.Logger;
  *
  * @author Tulkas
  */
-public class DBFastAccess {
-
-    private XMLProperties xmlProps;
-    private final int THIRTY_MINUTES = 30 * 60 * 1000; // Em milisecs
+public class DBArchive {
     
-    public DBFastAccess(XMLProperties xmlProps) {
+    private XMLProperties xmlProps;
+    private String currentTableName;
+    
+    public DBArchive(XMLProperties xmlProps) {
         this.xmlProps = xmlProps;
+        currentTableName = xmlProps.getDbArchiveTableName();
         Connection conn = null;
         try {
-            //System.out.println(xmlProps.getDBClassName());
-            //System.out.println(xmlProps.getDBName());
             Class.forName(xmlProps.getDBClassName());
             conn = DriverManager.getConnection(
             "jdbc:" + xmlProps.getDBName() + "://" +
                    xmlProps.getDbHostName() + ":" + xmlProps.getDbPort() +
                    "/" + xmlProps.getDbLocation(), xmlProps.getDbUsername(),
                    xmlProps.getDbPassword());
-            if (shouldICreateFAT(conn)) {
-                buildFastAccessTable(conn);
-            }
-            else {
-                cleanFastAccessTable(conn);
+            if (shouldICreateArchiveTable(conn)) {
+                createNewTable(conn);
             }
         } catch (ClassNotFoundException e) {
             System.out.println("ClassNotFound...");  
             e.printStackTrace();  
         } catch (SQLException e) {
-            System.out.println("sql exception");
-            System.out.println(e);
         } finally {  
             try {
                 conn.close();  
@@ -58,32 +51,22 @@ public class DBFastAccess {
             }
         }
     }
-    
-    private void cleanFastAccessTable(Connection conn) {
+
+    private boolean shouldICreateArchiveTable(Connection conn) {
         try {
-            Date today = new Date();
-            Timestamp tsp = new Timestamp(today.getTime());
-            String query = "DELETE FROM " + xmlProps.getDbFatName() + " WHERE TSMP > ?;";
-            PreparedStatement forwardRows = conn.prepareStatement(query);
-            forwardRows.setTimestamp(1, tsp);
-            forwardRows.execute();
-            forwardRows.close();
-            
-            query = "DELETE FROM " + xmlProps.getDbFatName() + " WHERE TSMP < ?;";
-            tsp.setTime(tsp.getTime() - THIRTY_MINUTES);
-            PreparedStatement backwardRows = conn.prepareStatement(query);
-            backwardRows.setTimestamp(1, tsp);
-            backwardRows.execute();
-            backwardRows.close();
-        } catch (SQLException ex) {
-            System.out.println(ex);
-        }
+             PreparedStatement pstm = conn.prepareStatement("SELECT COUNT(tsmp) FROM " + 
+                     currentTableName + ";");
+             ResultSet rs = pstm.executeQuery();
+             return false;
+         } catch (SQLException ex) {
+             return true;
+         }
     }
     
-    private void buildFastAccessTable(Connection conn) {
+    private void createNewTable(Connection conn) {
         try {
             FiltersStatus fs = xmlProps.getFilters();
-            String createTable = "CREATE TABLE " + xmlProps.getDbFatName() + 
+            String createTable = "CREATE TABLE " + currentTableName + 
                     "(tsmp TIME NOT NULL PRIMARY KEY, ";
             if (fs.isTCPActivated()) {
                 createTable += "tcp INTEGER NOT NULL, ";
@@ -109,43 +92,17 @@ public class DBFastAccess {
             PreparedStatement pstm = conn.prepareStatement(createTable);
             pstm.execute();
             pstm.close();
-            System.out.println("InsertDB: Criada a nova Tabela de Dados.");
+            System.out.println("ArchiveDB: Criada a nova Tabela de Dados.");
         } catch (SQLException ex) {
             System.out.println("Tabela descrita já existe.");
             Logger.getLogger(DBFastAccess.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
-    public void removeOldRows() {
-        Connection conn = null;
-        try {
-            Class.forName(xmlProps.getDBClassName());
-            conn = DriverManager.getConnection(
-            "jdbc:" + xmlProps.getDBName() + "://" +
-                   xmlProps.getDbHostName() + ":" + xmlProps.getDbPort() +
-                   "/" + xmlProps.getDbLocation(), xmlProps.getDbUsername(),
-                   xmlProps.getDbPassword());
-            Date today = new Date();
-            Timestamp tsp = new Timestamp(today.getTime());
-            tsp.setTime(tsp.getTime() - THIRTY_MINUTES);
-            String query = "DELETE FROM " + xmlProps.getDbFatName() + " WHERE TSMP < ?;";
-            PreparedStatement backwardRows = conn.prepareStatement(query);
-            backwardRows.setTimestamp(1, tsp);
-            backwardRows.execute();
-            backwardRows.close();
-        } catch (SQLException ex) {
-            System.out.println("InsertDB: Não foi possível inserir uma linha na FAT.");
-            Logger.getLogger(DBFastAccess.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException e) {
-                System.out.println("ClassNotFound...");  
-                e.printStackTrace();  
-        } finally {  
-            try {
-                conn.close();  
-            } catch (SQLException onConClose) {  
-                System.out.println("Error on closing");  
-                onConClose.printStackTrace();  
-            }
+    private void testIfDayHasChanged(Connection conn) {
+        if (!currentTableName.equals(xmlProps.getDbArchiveTableName())) {
+            currentTableName = xmlProps.getDbArchiveTableName();
+            createNewTable(conn);
         }
     }
     
@@ -158,20 +115,20 @@ public class DBFastAccess {
                    xmlProps.getDbHostName() + ":" + xmlProps.getDbPort() +
                    "/" + xmlProps.getDbLocation(), xmlProps.getDbUsername(),
                    xmlProps.getDbPassword());
+            testIfDayHasChanged(conn);
             String insertRow = "INSERT INTO " +
-                     xmlProps.getDbFatName() + " VALUES(?,";
+                     currentTableName + " VALUES(?,";
             int[] counters = dbd.getCounters();
             for (int i = 0; i < xmlProps.getFilters().getNumberOfActivatedFilters(); i++) {
                 insertRow += counters[i] + ",";
             }
             insertRow = insertRow.substring(0, insertRow.length() - 1);
             insertRow += ");";
-            //System.out.println("InsertDB: " + insertRow);
             PreparedStatement pstm = conn.prepareStatement(insertRow);
             pstm.setTimestamp(1, dbd.getTimestamp());
             pstm.execute();
         } catch (SQLException ex) {
-            System.out.println("InsertDB: Não foi possível inserir uma linha na FAT.");
+            System.out.println("ArchiveDB: Não foi possível inserir uma linha.");
             Logger.getLogger(DBFastAccess.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ClassNotFoundException e) {
                 System.out.println("ClassNotFound...");  
@@ -186,14 +143,4 @@ public class DBFastAccess {
         }
     }
     
-    private boolean shouldICreateFAT(Connection conn) {
-         try {
-             PreparedStatement pstm = conn.prepareStatement("SELECT COUNT(tsmp) FROM " + 
-                     xmlProps.getDbFatName() + ";");
-             ResultSet rs = pstm.executeQuery();
-             return false;
-         } catch (SQLException ex) {
-             return true;
-         }
-    }    
 }

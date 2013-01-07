@@ -1,15 +1,14 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package br.ufsm.psniffstat;
+
+import br.ufsm.psniffstat.database.DBDataSync;
+import br.ufsm.psniffstat.database.DataManager;
+import br.ufsm.psniffstat.sniffer.SnifferCMD;
 
 /**
  *
  * @author Tulkas
  */
-public class Main extends Thread {
+public class Main{
     
     /**
      * @param args the command line arguments
