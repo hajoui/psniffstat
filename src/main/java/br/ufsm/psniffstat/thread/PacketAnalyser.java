@@ -36,7 +36,7 @@ public class PacketAnalyser extends RecursiveAction {
     @Override
     protected void compute() {
         int mainThreads = 7;
-        int threshold = 1000;
+        int threshold = 1000000000;
         if (lenght <= threshold) {
             computeDirectly();
             return;
@@ -53,8 +53,9 @@ public class PacketAnalyser extends RecursiveAction {
     }
 
     protected void computeDirectly() {
-        int tcpAcc=0, udpAcc=0, icmpAcc=0, tcpAckAcc=0, tcpFinAcc=0, tcpSynAcc=0;
+        int tcpAcc=0, udpAcc=0, icmpAcc=0, tcpAckAcc=0, tcpFinAcc=0, tcpSynAcc=0, totalAcc=0;
         //System.out.println("computing from "+start+" to "+(lenght+start));
+        //TODO Revisar indices
         List<JPacket> packetsList = PacketsBuffer.getPacketsAnalisysSublist(start, lenght+start);
         for (JPacket packet : packetsList) {
             if (packet.hasHeader(tcpHeaderModel)) {
@@ -91,6 +92,7 @@ public class PacketAnalyser extends RecursiveAction {
         CountersBuffer.addTcpAckAcc(tcpAckAcc);
         CountersBuffer.addTcpFinAcc(tcpFinAcc);
         CountersBuffer.addTcpSynAcc(tcpSynAcc);
+        CountersBuffer.addTotalAcc(packetsList.size());
         //System.out.println("computing from "+start+" to "+(lenght+start)+" finished");
     }
 }

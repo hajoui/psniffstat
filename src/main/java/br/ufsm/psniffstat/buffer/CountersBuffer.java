@@ -6,7 +6,7 @@ package br.ufsm.psniffstat.buffer;
  */
 public class CountersBuffer {
 
-    private static int tcpAcc, udpAcc, icmpAcc, tcpAckAcc, tcpFinAcc, tcpSynAcc;
+    private static int tcpAcc, udpAcc, icmpAcc, tcpAckAcc, tcpFinAcc, tcpSynAcc, totalAcc;
     
     public static synchronized void addTcpAcc(){
         tcpAcc++;
@@ -55,29 +55,9 @@ public class CountersBuffer {
     public static synchronized void addTcpSynAcc(int qty){
         tcpSynAcc+=qty;
     }
-
-    public static synchronized int getTcpAcc() {
-        return tcpAcc;
-    }
-
-    public static synchronized int getUdpAcc() {
-        return udpAcc;
-    }
-
-    public static synchronized int getIcmpAcc() {
-        return icmpAcc;
-    }
-
-    public static synchronized int getTcpAckAcc() {
-        return tcpAckAcc;
-    }
-
-    public static synchronized int getTcpFinAcc() {
-        return tcpFinAcc;
-    }
-
-    public static synchronized int getTcpSynAcc() {
-        return tcpSynAcc;
+    
+    public static synchronized void addTotalAcc(int qty){
+        totalAcc+=qty;
     }
 
     public static synchronized void zeroCounters() {
@@ -87,10 +67,11 @@ public class CountersBuffer {
         tcpAckAcc = 0;
         tcpFinAcc = 0;
         tcpSynAcc = 0;
+        totalAcc = 0;
     }
     
         
     public static void printValues(){
-        System.out.println("Tcp "+tcpAcc+" Udp "+udpAcc+" Icmp "+icmpAcc+" TcpAck "+tcpAckAcc+" TcpFin "+tcpFinAcc+" TcpSyn "+tcpSynAcc);
+        System.out.println("Tcp "+tcpAcc+" Udp "+udpAcc+" Icmp "+icmpAcc+" TcpAck "+tcpAckAcc+" TcpFin "+tcpFinAcc+" TcpSyn "+tcpSynAcc+" Total "+totalAcc);
     }
 }

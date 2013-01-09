@@ -135,6 +135,7 @@ public class JNetPcap extends Thread {
              */
             @Override
             public void nextPacket(JPacket packet, String user) {
+                totalPackages++;
                 PacketsBuffer.addPacket(packet);
                 /*if (packet.hasHeader(tcpHeaderModel)) {
                  Tcp tcpHeader = packet.getHeader(tcpHeaderModel);
@@ -181,6 +182,7 @@ public class JNetPcap extends Thread {
     public void interrupt() {
         pcap.breakloop();
         this.close();
+        System.out.println("Total captured packages: "+totalPackages);
         super.interrupt();
     }
 
