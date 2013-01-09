@@ -1,5 +1,6 @@
 package br.ufsm.psniffstat.sniffer;
 
+import br.ufsm.psniffstat.thread.JNetPcap;
 import br.ufsm.psniffstat.XMLProperties;
 import br.ufsm.psniffstat.database.DBData;
 import br.ufsm.psniffstat.buffer.DBDataBuffer;

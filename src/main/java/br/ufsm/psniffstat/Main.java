@@ -2,8 +2,8 @@ package br.ufsm.psniffstat;
 
 import br.ufsm.psniffstat.buffer.CountersBuffer;
 import br.ufsm.psniffstat.buffer.PacketsBuffer;
-import br.ufsm.psniffstat.sniffer.JNetPcap;
-import br.ufsm.psniffstat.sniffer.PacketAnalyser;
+import br.ufsm.psniffstat.thread.JNetPcap;
+import br.ufsm.psniffstat.thread.PacketAnalyser;
 import java.util.Scanner;
 import java.util.concurrent.ForkJoinPool;
 

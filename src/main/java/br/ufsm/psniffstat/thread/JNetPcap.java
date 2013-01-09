@@ -1,7 +1,8 @@
-package br.ufsm.psniffstat.sniffer;
+package br.ufsm.psniffstat.thread;
 
 import br.ufsm.psniffstat.XMLProperties;
 import br.ufsm.psniffstat.buffer.PacketsBuffer;
+import br.ufsm.psniffstat.sniffer.FiltersStatus;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;

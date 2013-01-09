@@ -16,7 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * DBArchive is the database historical table administrator
  * @author Tulkas
  */
 public class DBArchive {

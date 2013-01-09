@@ -19,7 +19,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+* DBFastAccess is the database fast table administrator
  * @author Tulkas
  */
 public class DBFastAccess {

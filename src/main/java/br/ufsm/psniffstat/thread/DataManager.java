@@ -1,13 +1,17 @@
-package br.ufsm.psniffstat.database;
+package br.ufsm.psniffstat.thread;
 
 import br.ufsm.psniffstat.buffer.DBDataBuffer;
 import br.ufsm.psniffstat.XMLProperties;
+import br.ufsm.psniffstat.database.DBArchive;
+import br.ufsm.psniffstat.database.DBData;
+import br.ufsm.psniffstat.database.DBFastAccess;
 import br.ufsm.psniffstat.sniffer.SocketServer;
 
 /**
- * DataManager is in charge of counters storage<p>
- * Designed to read values from DBDataSync and store them into
+ * DataManager is the thread in charge of counters storage<p>
+ * Designed to read values from DBDataBuffer and store them into
  * configured database
+ * @see DBDataBuffer
  * @author Tulkas
  */
 public class DataManager extends Thread {

@@ -1,4 +1,4 @@
-package br.ufsm.psniffstat.sniffer;
+package br.ufsm.psniffstat.thread;
 
 import br.ufsm.psniffstat.buffer.CountersBuffer;
 import br.ufsm.psniffstat.buffer.PacketsBuffer;
