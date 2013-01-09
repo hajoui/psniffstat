@@ -3,7 +3,7 @@ package br.ufsm.psniffstat.database;
 import br.ufsm.psniffstat.XMLProperties;
 
 /**
- * This class is designed to start and handle database operations
+ * DBDataSync shared space
  * @author Tulkas
  */
 public class DBDataSync {

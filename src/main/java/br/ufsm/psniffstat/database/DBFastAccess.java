@@ -86,7 +86,7 @@ public class DBFastAccess {
         try {
             FiltersStatus fs = xmlProps.getFilters();
             String createTable = "CREATE TABLE " + xmlProps.getDbFatName() + 
-                    "(tsmp TIME NOT NULL PRIMARY KEY, ";
+                    "(tsmp TIME NOT NULL, ";// PRIMARY KEY
             if (fs.isTCPActivated()) {
                 createTable += "tcp INTEGER NOT NULL, ";
             }

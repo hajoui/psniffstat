@@ -4,33 +4,39 @@ import br.ufsm.psniffstat.XMLProperties;
 import br.ufsm.psniffstat.sniffer.SocketServer;
 
 /**
- * DataManager is designed to read values from DBDataSync and store them into
- * the configured database
+ * DataManager is in charge of counters storage<p>
+ * Designed to read values from DBDataSync and store them into
+ * configured database
  * @author Tulkas
  */
 public class DataManager extends Thread {
     
     private XMLProperties xmlProps;
     private DBDataSync dbds;
+    //DAO representations
     private DBFastAccess dbFastAccess = null;
     private DBArchive dbArchive = null;
+    
+    //Socket representation
     private SocketServer socketServer = null;
+    
+    //Fast access timeout
     private boolean over30Min = false;
     
     public DataManager(XMLProperties xmlProps, DBDataSync dbds) {
         this.xmlProps = xmlProps;
         this.dbds = dbds;
-        //Sets fastAccess
+        //Active fastAccess
         if (xmlProps.isFatOn()) {
             dbFastAccess = new DBFastAccess(xmlProps);
         }
         
-        //Initialize historical access
+        //Active historical access
         if (xmlProps.isArchiveOn()) {
             dbArchive = new DBArchive(xmlProps);
         }
         
-        //Initialize socket access
+        //Active socket access
         if (xmlProps.isSocketOn()) {
             socketServer = new SocketServer(xmlProps.getSocketPort());
         }
@@ -69,6 +75,7 @@ public class DataManager extends Thread {
             if (dbArchive != null) {
                 dbArchive.insertItem(dbd);
             }
+            
             if (socketServer != null) {
                 socketServer.sendData(dbd);
                 // Sinaliza que uma estrutura terminou de ser transferida e haverá outras

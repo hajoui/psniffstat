@@ -22,7 +22,7 @@ import org.jnetpcap.protocol.tcpip.Udp;
  * @author Tulkas
  */
 public class JNetPcap {
-    
+    private int totalPackages;
     private int deviceID;
     private PcapIf device;
     private Pcap pcap;
@@ -103,6 +103,8 @@ public class JNetPcap {
              */
             @Override
             public void nextPacket(JPacket packet, String user) {
+                System.out.println("package: "+totalPackages++);
+                
                 if (packet.hasHeader(tcpHeaderModel)) {
                     Tcp tcpHeader = packet.getHeader(tcpHeaderModel);
                     
@@ -135,6 +137,11 @@ public class JNetPcap {
         };
     }
     
+    
+    public void runCapture(){
+        pcap.loop(-1, handler, "PSniffStat");
+    }
+    
     /**
      * Releases the NIC and captures
      */
@@ -152,6 +159,7 @@ public class JNetPcap {
      * Closes the NIC
      */
     public void close() {
+        System.out.println("final count: ");
         pcap.close();
     }
     
