@@ -1,6 +1,7 @@
 package br.ufsm.psniffstat.sniffer;
 
 import br.ufsm.psniffstat.XMLProperties;
+import br.ufsm.psniffstat.buffer.PacketsBuffer;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -19,59 +20,88 @@ import org.jnetpcap.protocol.tcpip.Udp;
 /**
  * JNetPcap is the wrapper class which allows sniffer threads to execute libpcap
  * actions based on configured filters
+ *
  * @author Tulkas
  */
-public class JNetPcap {
+public class JNetPcap extends Thread {
+
     private int totalPackages;
     private int deviceID;
     private PcapIf device;
     private Pcap pcap;
     private JPacketHandler<String> handler; //Packet administrator
     private StringBuilder errbuf = new StringBuilder();
-    private Tcp tcpHeaderModel = new Tcp();
-    private Udp udpHeaderModel = new Udp();
-    private Icmp icmpHeaderModel = new Icmp();
-    Http htt = new Http();
-    private int tcpAcc, udpAcc, icmpAcc, tcpAckAcc, tcpFinAcc, tcpSynAcc;
+
     private XMLProperties xmlProps;
 
     public JNetPcap(XMLProperties xmlProps) {
-        tcpAcc = udpAcc = icmpAcc = tcpAckAcc = tcpFinAcc = tcpSynAcc = -1;
+        //tcpAcc = udpAcc = icmpAcc = tcpAckAcc = tcpFinAcc = tcpSynAcc = -1;
         this.xmlProps = xmlProps;
         //sets configured counters at 0
-        zeroCountersInternal();
+        //zeroCountersInternal();
         //asks to the user which NIC should be used
         chooseNetworkDevice();
     }
-    
+
+    public JNetPcap(XMLProperties xmlProps, String nicId) {
+        //tcpAcc = udpAcc = icmpAcc = tcpAckAcc = tcpFinAcc = tcpSynAcc = -1;
+        this.xmlProps = xmlProps;
+        //sets configured counters at 0
+        //zeroCountersInternal();
+        //asks to the user which NIC should be used
+        setNetworkDevice(nicId);
+    }
+
     /**
-     * Search the available devices and if it has success asks to the user wich NIC
-     * should be sniffed
+     * Search the available devices and if it has success asks to the user wich
+     * NIC should be sniffed
      */
     private void chooseNetworkDevice() {
         List<PcapIf> alldevs = new ArrayList<>(); // Will be filled with NICs
         int r = Pcap.findAllDevs(alldevs, errbuf);
         if (r == Pcap.NOT_OK || alldevs.isEmpty()) {
-            System.err.println("Não foi possível ler uma lista de dispositivos. " +
-                    "O erro obtido é: " + errbuf.toString());
+            System.err.println("Não foi possível ler uma lista de dispositivos. "
+                    + "O erro obtido é: " + errbuf.toString());
             System.exit(-1);
         }
-        
+
         System.out.println("Lista de dispositivos encontrados:");
         int i = 0;
         for (PcapIf tempDevice : alldevs) {
             System.out.printf("#%d: %s [%s]\n", i++, tempDevice.getName(), tempDevice
-                .getDescription());
+                    .getDescription());
         }
         System.out.print("Qual desejas escolher? ");
         Scanner sc = new Scanner(System.in);
         deviceID = sc.nextInt();
-        if(deviceID < 0 || deviceID >= alldevs.size()) {
+        if (deviceID < 0 || deviceID >= alldevs.size()) {
             System.out.println("Dispositivo de rede escolhido inválido.");
             System.exit(-1);
         }
         device = alldevs.get(deviceID);
         System.out.printf("\nEscolhido o dispositivo: '%s'.\n", device.getDescription());
+    }
+
+    private void setNetworkDevice(String nicId) {
+        List<PcapIf> alldevs = new ArrayList<>(); // Will be filled with NICs
+        int r = Pcap.findAllDevs(alldevs, errbuf);
+        if (r == Pcap.NOT_OK || alldevs.isEmpty()) {
+            System.err.println("Não foi possível ler uma lista de dispositivos. "
+                    + "O erro obtido é: " + errbuf.toString());
+            System.exit(-1);
+        }
+        for (PcapIf tempDevice : alldevs) {
+            if (tempDevice.getName().equalsIgnoreCase(nicId)) {
+                device = tempDevice;
+                break;
+            }
+        }
+        if (device != null) {
+            System.out.printf("\nEscolhido o dispositivo: '%s-%s'.\n", device.getName(), device.getDescription());
+        } else {
+            System.out.println("Dispositivo de rede escolhido inválido.");
+            System.exit(-1);
+        }
     }
 
     /**
@@ -83,10 +113,11 @@ public class JNetPcap {
         int timeout = xmlProps.getInterval() * 1000; // x segundos em milisegundos
         pcap = Pcap.openLive(device.getName(), snaplen, flags, timeout, errbuf);
         if (pcap == null) {
-          System.err.printf("Erro durante tentativa de abrir dispositivo para captura: "  
-                + errbuf.toString());
-          System.exit(-1);
+            System.err.printf("Erro durante tentativa de abrir dispositivo para captura: "
+                    + errbuf.toString());
+            System.exit(-1);
         }
+
         PcapBpfProgram filter = new PcapBpfProgram();
         String expression = buildExpression();
         if (pcap.compile(filter, expression, 0, 0) != Pcap.OK) {
@@ -103,45 +134,55 @@ public class JNetPcap {
              */
             @Override
             public void nextPacket(JPacket packet, String user) {
-                System.out.println("package: "+totalPackages++);
-                
-                if (packet.hasHeader(tcpHeaderModel)) {
-                    Tcp tcpHeader = packet.getHeader(tcpHeaderModel);
+                PacketsBuffer.addPacket(packet);
+                /*if (packet.hasHeader(tcpHeaderModel)) {
+                 Tcp tcpHeader = packet.getHeader(tcpHeaderModel);
                     
-                    if(packet.hasHeader(htt)){
-                        byte[] t = tcpHeaderModel.getPayload();
-                        String teste = new String(t);
-                        if(teste!=null){
-                            System.out.println(teste);
-                        }
-                    }
+                 if(packet.hasHeader(htt)){
+                 byte[] t = tcpHeaderModel.getPayload();
+                 String teste = new String(t);
+                 if(teste!=null){
+                 System.out.println(teste);
+                 }
+                 }
 
-                    tcpAcc++;
-                    if (tcpHeader.flags_ACK()) {
-                        tcpAckAcc++;
-                    }
-                    if (tcpHeader.flags_FIN()) {
-                        tcpFinAcc++;
-                    }
-                    if (tcpHeader.flags_SYN()) {
-                        tcpSynAcc++; 
-                    }
-                }
-                if (packet.hasHeader(udpHeaderModel)) {
-                    udpAcc++;
-                }
-                if (packet.hasHeader(icmpHeaderModel)) {
-                    icmpAcc++;
-                }
-            } 
+                 tcpAcc++;
+                 if (tcpHeader.flags_ACK()) {
+                 tcpAckAcc++;
+                 }
+                 if (tcpHeader.flags_FIN()) {
+                 tcpFinAcc++;
+                 }
+                 if (tcpHeader.flags_SYN()) {
+                 tcpSynAcc++; 
+                 }
+                 }
+                 if (packet.hasHeader(udpHeaderModel)) {
+                 udpAcc++;
+                 }
+                 if (packet.hasHeader(icmpHeaderModel)) {
+                 icmpAcc++;
+                 }*/
+            }
         };
     }
-    
-    
-    public void runCapture(){
+
+    public void runCapture() {
         pcap.loop(-1, handler, "PSniffStat");
     }
-    
+
+    @Override
+    public void run() {
+        pcap.loop(-1, handler, "PSniffStat");
+    }
+
+    @Override
+    public void interrupt() {
+        pcap.breakloop();
+        this.close();
+        super.interrupt();
+    }
+
     /**
      * Releases the NIC and captures
      */
@@ -154,15 +195,14 @@ public class JNetPcap {
         Timestamp tsp2 = new Timestamp(today2.getTime());
         System.out.println("disp after: " + tsp2.toString());
     }
-    
+
     /**
      * Closes the NIC
      */
     public void close() {
-        System.out.println("final count: ");
         pcap.close();
     }
-    
+
     /*
      * Builds jnetpcap filter expression based on active filters at FiltersStatus
      * @see FilterStatus
@@ -201,11 +241,11 @@ public class JNetPcap {
         System.out.println("exp: " + filter);
         return filter;
     }
-    
+
     /*
      * Sets internal counters at 0
      */
-    private void zeroCountersInternal() {
+    /*private void zeroCountersInternal() {
         FiltersStatus fs = xmlProps.getFilters();
         if (fs.isTCPActivated()) {
             tcpAcc = 0;
@@ -225,12 +265,12 @@ public class JNetPcap {
         if (fs.isTCPSYNActivated()) {
             tcpSynAcc = 0;
         }
-    }
-    
+    }*/
+
     /**
      * Sets packages counters at 0
      */
-    public void zeroCounters() {
+    /*public void zeroCounters() {
         if (tcpAcc != -1) {
             tcpAcc = 0;
         }
@@ -249,13 +289,14 @@ public class JNetPcap {
         if (tcpSynAcc != -1) {
             tcpSynAcc = 0;
         }
-    }
-    
+    }*/
+
     /**
      * Returns array values based on filters status
+     *
      * @return array that represents counters values
      */
-    public int[] getCounters() {
+    /*public int[] getCounters() {
         int[] counters = new int[xmlProps.getFilters().getNumberOfActivatedFilters()];
         int index = 0;
         if (tcpAcc != -1) {
@@ -283,6 +324,5 @@ public class JNetPcap {
             index++;
         }
         return counters;
-    }
-    
+    }*/
 }

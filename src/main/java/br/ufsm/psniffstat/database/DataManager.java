@@ -1,5 +1,6 @@
 package br.ufsm.psniffstat.database;
 
+import br.ufsm.psniffstat.buffer.DBDataBuffer;
 import br.ufsm.psniffstat.XMLProperties;
 import br.ufsm.psniffstat.sniffer.SocketServer;
 
@@ -12,7 +13,7 @@ import br.ufsm.psniffstat.sniffer.SocketServer;
 public class DataManager extends Thread {
     
     private XMLProperties xmlProps;
-    private DBDataSync dbds;
+    private DBDataBuffer dbds;
     //DAO representations
     private DBFastAccess dbFastAccess = null;
     private DBArchive dbArchive = null;
@@ -23,7 +24,7 @@ public class DataManager extends Thread {
     //Fast access timeout
     private boolean over30Min = false;
     
-    public DataManager(XMLProperties xmlProps, DBDataSync dbds) {
+    public DataManager(XMLProperties xmlProps, DBDataBuffer dbds) {
         this.xmlProps = xmlProps;
         this.dbds = dbds;
         //Active fastAccess

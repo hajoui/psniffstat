@@ -1,12 +1,13 @@
-package br.ufsm.psniffstat.database;
+package br.ufsm.psniffstat.buffer;
 
 import br.ufsm.psniffstat.XMLProperties;
+import br.ufsm.psniffstat.database.DBData;
 
 /**
  * DBDataSync shared space
  * @author Tulkas
  */
-public class DBDataSync {
+public class DBDataBuffer {
     private DBData dbData;
     private int numActiveFilters;
     private boolean valueWritten;
@@ -14,7 +15,7 @@ public class DBDataSync {
     /**
      * @param xmlProps sniffer configuration properties
      */
-    public DBDataSync(XMLProperties xmlProps) {
+    public DBDataBuffer(XMLProperties xmlProps) {
         numActiveFilters = xmlProps.getFilters().getNumberOfActivatedFilters();
         dbData = new DBData(numActiveFilters);
         valueWritten = false;

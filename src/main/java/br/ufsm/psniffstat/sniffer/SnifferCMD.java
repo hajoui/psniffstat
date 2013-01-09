@@ -2,7 +2,7 @@ package br.ufsm.psniffstat.sniffer;
 
 import br.ufsm.psniffstat.XMLProperties;
 import br.ufsm.psniffstat.database.DBData;
-import br.ufsm.psniffstat.database.DBDataSync;
+import br.ufsm.psniffstat.buffer.DBDataBuffer;
 import java.sql.Timestamp;
 import java.util.Date;
 
@@ -13,10 +13,10 @@ import java.util.Date;
 public class SnifferCMD extends Thread {
     
     private XMLProperties xmlProps;
-    private DBDataSync dbDataSync;
+    private DBDataBuffer dbDataSync;
     private JNetPcap jNetPcap;
     
-    public SnifferCMD(XMLProperties xmlProps, DBDataSync dbDataSync) {
+    public SnifferCMD(XMLProperties xmlProps, DBDataBuffer dbDataSync) {
         this.xmlProps = xmlProps;
         this.dbDataSync = dbDataSync;
         jNetPcap = new JNetPcap(xmlProps);
@@ -24,7 +24,7 @@ public class SnifferCMD extends Thread {
     
     @Override
     public void run() {
-        System.out.println("SnifferCMD: Started!");
+        /*System.out.println("SnifferCMD: Started!");
         DBData dbData;
         int i = 0;
         if (xmlProps.getAmmountIntervals() == -1) {
@@ -51,7 +51,7 @@ public class SnifferCMD extends Thread {
             // System.out.println("SnifferCMD: Ciclo de captura concluído.");
             // System.out.println("tspsniffcmd: " + tsp.toString());
         } while (i < xmlProps.getAmmountIntervals());
-        System.out.println("SnifferCMD: Finished...");
+        System.out.println("SnifferCMD: Finished...");*/
     }
 }
 
