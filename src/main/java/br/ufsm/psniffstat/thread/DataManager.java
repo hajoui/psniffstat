@@ -8,26 +8,24 @@ import br.ufsm.psniffstat.database.DBFastAccess;
 import br.ufsm.psniffstat.sniffer.SocketServer;
 
 /**
- * DataManager is the thread in charge of counters storage<p>
- * Designed to read values from DBDataBuffer and store them into
- * configured database
+ * DataManager is the thread in charge of counters storage<p> Designed to read
+ * values from DBDataBuffer and store them into configured database
+ *
  * @see DBDataBuffer
  * @author Tulkas
  */
 public class DataManager extends Thread {
-    
+
     private XMLProperties xmlProps;
     private DBDataBuffer dbds;
     //DAO representations
     private DBFastAccess dbFastAccess = null;
     private DBArchive dbArchive = null;
-    
     //Socket representation
     private SocketServer socketServer = null;
-    
     //Fast access timeout
     private boolean over30Min = false;
-    
+
     public DataManager(XMLProperties xmlProps, DBDataBuffer dbds) {
         this.xmlProps = xmlProps;
         this.dbds = dbds;
@@ -35,25 +33,25 @@ public class DataManager extends Thread {
         if (xmlProps.isFatOn()) {
             dbFastAccess = new DBFastAccess(xmlProps);
         }
-        
+
         //Active historical access
         if (xmlProps.isArchiveOn()) {
             dbArchive = new DBArchive(xmlProps);
         }
-        
+
         //Active socket access
         if (xmlProps.isSocketOn()) {
             socketServer = new SocketServer(xmlProps.getSocketPort());
         }
     }
-    
+
     public boolean isSocketConnected() {
         if (socketServer == null) {
             return false;
         }
         return socketServer.isConnected();
     }
-    
+
     @Override
     public void run() {
         System.out.println("DataManager: Started!");
@@ -66,6 +64,7 @@ public class DataManager extends Thread {
                 i++;
             }
             DBData dbd = dbds.removeItem();
+            System.out.println(dbd);
             if (dbFastAccess != null) {
                 dbFastAccess.insertItem(dbd);
                 if (over30Min) {
@@ -80,17 +79,19 @@ public class DataManager extends Thread {
             if (dbArchive != null) {
                 dbArchive.insertItem(dbd);
             }
-            
+
             if (socketServer != null) {
                 socketServer.sendData(dbd);
                 // Sinaliza que uma estrutura terminou de ser transferida e haverá outras
                 if (i < xmlProps.getAmmountIntervals()) {
                     socketServer.sendData(-1);
-                }
-                // Sinaliza que a estrutura enviada foi a última
+                } // Sinaliza que a estrutura enviada foi a última
                 else {
                     socketServer.sendData(-2);
                 }
+            }
+            if (Thread.interrupted()) {
+                break;
             }
         } while (i < xmlProps.getAmmountIntervals());
         System.out.println("gotout");
@@ -100,5 +101,4 @@ public class DataManager extends Thread {
         }
         System.exit(-1);
     }
-
 }

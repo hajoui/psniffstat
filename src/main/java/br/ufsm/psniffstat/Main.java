@@ -1,14 +1,11 @@
 package br.ufsm.psniffstat;
 
-import br.ufsm.psniffstat.buffer.CountersBuffer;
+import br.ufsm.psniffstat.buffer.DBDataBuffer;
 import br.ufsm.psniffstat.buffer.PacketsBuffer;
 import br.ufsm.psniffstat.thread.DataManager;
 import br.ufsm.psniffstat.thread.JNetPcap;
-import br.ufsm.psniffstat.thread.PacketAnalyser;
 import br.ufsm.psniffstat.thread.PacketAnalyserDispatcher;
 import java.util.Scanner;
-import java.util.Timer;
-import java.util.concurrent.ForkJoinPool;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -57,20 +54,30 @@ public class Main {
     }
 
     public static void runCapture() {
+        //Run rdbms
+        DBDataBuffer buffer = new DBDataBuffer(xmlProps);
+        dataManager = new DataManager(xmlProps, buffer);
+        dataManager.start();
+        
         //Run capture
+        PacketsBuffer.startPacketsBuffer(); 
         jNetPcap.openNetworkDevice();
         jNetPcap.start();
         //Run analysis
-        packetAnalyserDispatcher = new PacketAnalyserDispatcher(5 * 1000);
+        packetAnalyserDispatcher = new PacketAnalyserDispatcher(xmlProps, buffer);
         packetAnalyserDispatcher.start();
+        
     }
 
     public static void shutdown() {
         try {
             jNetPcap.interrupt();
             packetAnalyserDispatcher.interrupt();
+            dataManager.interrupt();
             jNetPcap.join();
             packetAnalyserDispatcher.join();
+            dataManager.join();
+            
             System.out.println("Bye . . .");
         } catch (InterruptedException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
@@ -79,12 +86,14 @@ public class Main {
 
     public static void restartAll(String[] args) {
         System.out.println("\nrestarting . . ." + PacketsBuffer.getPacketsList().size() + " packages captured");
-        PacketsBuffer.clearPacketsList();
+        PacketsBuffer.startPacketsBuffer();
         try {
             jNetPcap.interrupt();
             packetAnalyserDispatcher.interrupt();
+            dataManager.interrupt();
             jNetPcap.join();
             packetAnalyserDispatcher.join();
+            dataManager.join();
         } catch (Exception e) {
             System.exit(-1);
         }
@@ -154,17 +163,17 @@ public class Main {
 //        //jNetPcap.close();
 //
 //    }
-    public static void runAnalysis() {
+//    public static void runAnalysis() {
 
-        PacketsBuffer.prepareAnalisysVector();
-        System.out.println("running analisis total size " + PacketsBuffer.getPacketsList().size() + " analysis size " + PacketsBuffer.getPacketsAnalysisList().size());
-        PacketAnalyser analyser = new PacketAnalyser(0, PacketsBuffer.getPacketsList().size());
-        ForkJoinPool pool = new ForkJoinPool();
-        pool.invoke(analyser);
-        PacketsBuffer.removeAnalysVector();
-        System.out.println("Analysis finished, total size " + PacketsBuffer.getPacketsList().size() + " analysis size " + PacketsBuffer.getPacketsAnalysisList().size());
-        System.out.println("Compute size " + PacketsBuffer.getPacketsList().size());
-        CountersBuffer.printValues();
-        CountersBuffer.zeroCounters();
-    }
+//        PacketsBuffer.prepareAnalisysVector();
+//        System.out.println("running analisis total size " + PacketsBuffer.getPacketsList().size() + " analysis size " + PacketsBuffer.getPacketsAnalysisList().size());
+//        PacketAnalyser analyser = new PacketAnalyser(0, PacketsBuffer.getPacketsList().size());
+//        ForkJoinPool pool = new ForkJoinPool();
+//        pool.invoke(analyser);
+//        PacketsBuffer.removeAnalysVector();
+//        System.out.println("Analysis finished, total size " + PacketsBuffer.getPacketsList().size() + " analysis size " + PacketsBuffer.getPacketsAnalysisList().size());
+//        System.out.println("Compute size " + PacketsBuffer.getPacketsList().size());
+//        CountersBuffer.printValues();
+//        CountersBuffer.zeroCounters();
+//    }
 }

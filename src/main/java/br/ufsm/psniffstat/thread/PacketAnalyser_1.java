@@ -21,7 +21,7 @@ import org.jnetpcap.protocol.tcpip.Udp;
  * @see JNetPcap
  * @author tuxtor
  */
-public class PacketAnalyser extends RecursiveAction {
+public class PacketAnalyser_1 extends RecursiveAction {
 
     private Tcp tcpHeaderModel = new Tcp();
     private Udp udpHeaderModel = new Udp();
@@ -29,13 +29,11 @@ public class PacketAnalyser extends RecursiveAction {
     //Paralell variables
     private int start;
     private int lenght;
-    private List packetList;
     Http htt = new Http();
     
-    public PacketAnalyser(List packetList, int start, int lenght) {
+    public PacketAnalyser_1(int start, int lenght) {
         this.start = start;
         this.lenght = lenght;
-        this.packetList = packetList;
     }
 
     @Override
@@ -50,7 +48,7 @@ public class PacketAnalyser extends RecursiveAction {
 
         List packetAnalyzers = new ArrayList();
         for (int i = 0; i < mainThreads; i++) {
-            packetAnalyzers.add(new PacketAnalyser(packetList, start+i * split, split));
+            packetAnalyzers.add(new PacketAnalyser_1(start+i * split, split));
         }
         invokeAll(packetAnalyzers);
         /*invokeAll(new PacketAnalyser(mStart, split, mDestination),
@@ -61,8 +59,8 @@ public class PacketAnalyser extends RecursiveAction {
         int tcpAcc=0, udpAcc=0, icmpAcc=0, tcpAckAcc=0, tcpFinAcc=0, tcpSynAcc=0, totalAcc=0;
         //System.out.println("computing from "+start+" to "+(lenght+start));
         //TODO Revisar indices
-        List<PcapPacket> packetsList = packetList.subList(start, lenght+start);
-        for (PcapPacket packet : packetsList) {
+        List<JPacket> packetsList = PacketsBuffer.getPacketsAnalisysSublist(start, lenght+start);
+        for (JPacket packet : packetsList) {
             totalAcc++;
             if (packet.hasHeader(tcpHeaderModel)) {
                 Tcp tcpHeader = packet.getHeader(tcpHeaderModel);

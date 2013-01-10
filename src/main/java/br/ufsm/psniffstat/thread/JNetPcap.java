@@ -3,20 +3,20 @@ package br.ufsm.psniffstat.thread;
 import br.ufsm.psniffstat.XMLProperties;
 import br.ufsm.psniffstat.buffer.PacketsBuffer;
 import br.ufsm.psniffstat.sniffer.FiltersStatus;
+import java.nio.ByteBuffer;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
+import org.jnetpcap.ByteBufferHandler;
 import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapBpfProgram;
+import org.jnetpcap.PcapHeader;
 import org.jnetpcap.PcapIf;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JPacketHandler;
-import org.jnetpcap.protocol.network.Icmp;
-import org.jnetpcap.protocol.tcpip.Http;
-import org.jnetpcap.protocol.tcpip.Tcp;
-import org.jnetpcap.protocol.tcpip.Udp;
+import org.jnetpcap.packet.PcapPacket;
 
 /**
  * JNetPcap is the wrapper class which allows sniffer threads to execute libpcap
@@ -31,10 +31,11 @@ public class JNetPcap extends Thread {
     private PcapIf device;
     private Pcap pcap;
     private JPacketHandler<String> handler; //Packet administrator
+    private ByteBufferHandler bufferHandler;
     private StringBuilder errbuf = new StringBuilder();
-
     private XMLProperties xmlProps;
-
+    private boolean dispatch=true;
+    
     public JNetPcap(XMLProperties xmlProps) {
         //tcpAcc = udpAcc = icmpAcc = tcpAckAcc = tcpFinAcc = tcpSynAcc = -1;
         this.xmlProps = xmlProps;
@@ -112,7 +113,9 @@ public class JNetPcap extends Thread {
         int snaplen = 64 * 1024;           // Captura todos pacotes, sem truncar
         int flags = Pcap.MODE_PROMISCUOUS; // Captura todos pacotes
         int timeout = xmlProps.getInterval() * 1000; // x segundos em milisegundos
+        
         pcap = Pcap.openLive(device.getName(), snaplen, flags, timeout, errbuf);
+        pcap.setBufferSize(10*1024*1024);
         if (pcap == null) {
             System.err.printf("Erro durante tentativa de abrir dispositivo para captura: "
                     + errbuf.toString());
@@ -136,53 +139,37 @@ public class JNetPcap extends Thread {
             @Override
             public void nextPacket(JPacket packet, String user) {
                 totalPackages++;
-                PacketsBuffer.addPacket(packet);
-                /*if (packet.hasHeader(tcpHeaderModel)) {
-                 Tcp tcpHeader = packet.getHeader(tcpHeaderModel);
-                    
-                 if(packet.hasHeader(htt)){
-                 byte[] t = tcpHeaderModel.getPayload();
-                 String teste = new String(t);
-                 if(teste!=null){
-                 System.out.println(teste);
-                 }
-                 }
+                PacketsBuffer.addPacket(new PcapPacket(packet));
+            }
+        };
 
-                 tcpAcc++;
-                 if (tcpHeader.flags_ACK()) {
-                 tcpAckAcc++;
-                 }
-                 if (tcpHeader.flags_FIN()) {
-                 tcpFinAcc++;
-                 }
-                 if (tcpHeader.flags_SYN()) {
-                 tcpSynAcc++; 
-                 }
-                 }
-                 if (packet.hasHeader(udpHeaderModel)) {
-                 udpAcc++;
-                 }
-                 if (packet.hasHeader(icmpHeaderModel)) {
-                 icmpAcc++;
-                 }*/
+        bufferHandler = new ByteBufferHandler() {
+            @Override
+            public void nextPacket(PcapHeader header, ByteBuffer buffer, Object user) {
+                PacketsBuffer.addPacket(new PcapPacket(header,buffer));
             }
         };
     }
 
-    public void runCapture() {
-        pcap.loop(-1, handler, "PSniffStat");
-    }
-
+    /*public void runCapture() {
+     pcap.loop(-1, handler, "PSniffStat");
+     }*/
     @Override
     public void run() {
         pcap.loop(-1, handler, "PSniffStat");
+        //pcap.loop(-1, bufferHandler, "PSniffStat");
+        /*while (dispatch) {
+            pcap.dispatch(100, handler, "PSniffStat");
+            //System.out.println("dispatched");
+        }*/
     }
 
     @Override
     public void interrupt() {
         pcap.breakloop();
+        //this.dispatch = false;
         this.close();
-        System.out.println("Total captured packages: "+totalPackages);
+        System.out.println("Total captured packages: " + totalPackages);
         super.interrupt();
     }
 
@@ -249,83 +236,81 @@ public class JNetPcap extends Thread {
      * Sets internal counters at 0
      */
     /*private void zeroCountersInternal() {
-        FiltersStatus fs = xmlProps.getFilters();
-        if (fs.isTCPActivated()) {
-            tcpAcc = 0;
-        }
-        if (fs.isUDPActivated()) {
-            udpAcc = 0;
-        }
-        if (fs.isICMPActivated()) {
-            icmpAcc = 0;
-        }
-        if (fs.isTCPACKActivated()) {
-            tcpAckAcc = 0;
-        }
-        if (fs.isTCPFINActivated()) {
-            tcpFinAcc = 0;
-        }
-        if (fs.isTCPSYNActivated()) {
-            tcpSynAcc = 0;
-        }
-    }*/
-
+     FiltersStatus fs = xmlProps.getFilters();
+     if (fs.isTCPActivated()) {
+     tcpAcc = 0;
+     }
+     if (fs.isUDPActivated()) {
+     udpAcc = 0;
+     }
+     if (fs.isICMPActivated()) {
+     icmpAcc = 0;
+     }
+     if (fs.isTCPACKActivated()) {
+     tcpAckAcc = 0;
+     }
+     if (fs.isTCPFINActivated()) {
+     tcpFinAcc = 0;
+     }
+     if (fs.isTCPSYNActivated()) {
+     tcpSynAcc = 0;
+     }
+     }*/
     /**
      * Sets packages counters at 0
      */
     /*public void zeroCounters() {
-        if (tcpAcc != -1) {
-            tcpAcc = 0;
-        }
-        if (udpAcc != -1) {
-            udpAcc = 0;
-        }
-        if (icmpAcc != -1) {
-            icmpAcc = 0;
-        }
-        if (tcpAckAcc != -1) {
-            tcpAckAcc = 0;
-        }
-        if (tcpFinAcc != -1) {
-            tcpFinAcc = 0;
-        }
-        if (tcpSynAcc != -1) {
-            tcpSynAcc = 0;
-        }
-    }*/
-
+     if (tcpAcc != -1) {
+     tcpAcc = 0;
+     }
+     if (udpAcc != -1) {
+     udpAcc = 0;
+     }
+     if (icmpAcc != -1) {
+     icmpAcc = 0;
+     }
+     if (tcpAckAcc != -1) {
+     tcpAckAcc = 0;
+     }
+     if (tcpFinAcc != -1) {
+     tcpFinAcc = 0;
+     }
+     if (tcpSynAcc != -1) {
+     tcpSynAcc = 0;
+     }
+     }*/
     /**
      * Returns array values based on filters status
      *
      * @return array that represents counters values
      */
     /*public int[] getCounters() {
-        int[] counters = new int[xmlProps.getFilters().getNumberOfActivatedFilters()];
-        int index = 0;
-        if (tcpAcc != -1) {
-            counters[index] = tcpAcc;
-            index++;
-        }
-        if (udpAcc != -1) {
-            counters[index] = udpAcc;
-            index++;
-        }
-        if (icmpAcc != -1) {
-            counters[index] = icmpAcc;
-            index++;
-        }
-        if (tcpAckAcc != -1) {
-            counters[index] = tcpAckAcc;
-            index++;
-        }
-        if (tcpFinAcc != -1) {
-            counters[index] = tcpFinAcc;
-            index++;
-        }
-        if (tcpSynAcc != -1) {
-            counters[index] = tcpSynAcc;
-            index++;
-        }
-        return counters;
-    }*/
+     int[] counters = new int[xmlProps.getFilters().getNumberOfActivatedFilters()];
+     int index = 0;
+     if (tcpAcc != -1) {
+     counters[index] = tcpAcc;
+     index++;
+     }
+     if (udpAcc != -1) {
+     counters[index] = udpAcc;
+     index++;
+     }
+     if (icmpAcc != -1) {
+     counters[index] = icmpAcc;
+     index++;
+     }
+     if (tcpAckAcc != -1) {
+     counters[index] = tcpAckAcc;
+     index++;
+     }
+     if (tcpFinAcc != -1) {
+     counters[index] = tcpFinAcc;
+     index++;
+     }
+     if (tcpSynAcc != -1) {
+     counters[index] = tcpSynAcc;
+     index++;
+     }
+     return counters;
+     }*/
 }

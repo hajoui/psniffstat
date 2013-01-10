@@ -37,4 +37,7 @@ public class DBData implements Serializable {
         return counters;
     }
     
+    public String toString(){
+        return tsp+"-"+counters;
+    }
 }
