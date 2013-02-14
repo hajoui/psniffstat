@@ -1,13 +1,9 @@
 package br.ufsm.psniffstat.thread;
 
 import br.ufsm.psniffstat.buffer.CountersBuffer;
-import br.ufsm.psniffstat.buffer.PacketsBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.RecursiveAction;
-import org.jnetpcap.PcapHeader;
-import org.jnetpcap.nio.JBuffer;
-import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.protocol.network.Icmp;
 import org.jnetpcap.protocol.tcpip.Http;

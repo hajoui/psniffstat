@@ -1,7 +1,7 @@
 package br.ufsm.psniffstat.thread;
 
-import br.ufsm.psniffstat.buffer.DBDataBuffer;
 import br.ufsm.psniffstat.XMLProperties;
+import br.ufsm.psniffstat.buffer.DBDataBuffer;
 import br.ufsm.psniffstat.database.DBArchive;
 import br.ufsm.psniffstat.database.DBData;
 import br.ufsm.psniffstat.database.DBFastAccess;

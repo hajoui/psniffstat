@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package br.ufsm.psniffstat.sniffer;
 
 import br.ufsm.psniffstat.database.DBData;

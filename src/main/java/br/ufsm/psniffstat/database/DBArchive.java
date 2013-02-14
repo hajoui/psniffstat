@@ -1,12 +1,7 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package br.ufsm.psniffstat.database;
 
-import br.ufsm.psniffstat.sniffer.FiltersStatus;
 import br.ufsm.psniffstat.XMLProperties;
+import br.ufsm.psniffstat.sniffer.FiltersStatus;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;

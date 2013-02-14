@@ -2,11 +2,7 @@ package br.ufsm.psniffstat.buffer;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Vector;
-import org.jnetpcap.PcapHeader;
-import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.PcapPacket;
 
 /**

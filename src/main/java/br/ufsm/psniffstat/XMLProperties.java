@@ -1,8 +1,6 @@
 package br.ufsm.psniffstat;
 
 import br.ufsm.psniffstat.sniffer.FiltersStatus;
-import java.io.File;
-import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.xml.parsers.SAXParser;

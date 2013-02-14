@@ -1,11 +1,8 @@
 package br.ufsm.psniffstat.sniffer;
 
-import br.ufsm.psniffstat.thread.JNetPcap;
 import br.ufsm.psniffstat.XMLProperties;
-import br.ufsm.psniffstat.database.DBData;
 import br.ufsm.psniffstat.buffer.DBDataBuffer;
-import java.sql.Timestamp;
-import java.util.Date;
+import br.ufsm.psniffstat.thread.JNetPcap;
 
 /**
  * This class represents sniffing thread and uses DBDataSync to store in database
