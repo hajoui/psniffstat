@@ -46,7 +46,8 @@ public class PacketAnalyserDispatcher extends Thread {
         while (true) {
             try {
                 runAnalysis();
-                long difference = interval - (endTime.getTime() - startTime.getTime());
+                //long difference = interval - (endTime.getTime() - startTime.getTime());
+                long difference = 2000;
                 if (difference > 500) {
                     Thread.sleep(difference);
                 }
@@ -77,7 +78,7 @@ public class PacketAnalyserDispatcher extends Thread {
         //persist data
         endTime = new Date();
         if (dataBuffer != null) {
-            System.out.println("Sending to database");
+            //System.out.println("Sending to database");
             DBData data = new DBData(xmlProps.getFilters().getNumberOfActivatedFilters());
             data.setCounters(CountersBuffer.getCounters(xmlProps.getFilters().getNumberOfActivatedFilters()));
             data.setTimestamp(new Timestamp(endTime.getTime()));

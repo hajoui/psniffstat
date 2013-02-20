@@ -13,22 +13,26 @@ public class PacketsBuffer {
 
     private static List packetsList;
 
-    public static void startPacketsBuffer() {
+    public static synchronized void startPacketsBuffer() {
         packetsList = Collections.synchronizedList(new ArrayList<>());
     }
 
-    public static List getPacketsList() {
+    public static synchronized List getPacketsList() {
         return packetsList;
     }
 
-    public static List getAnalysisList() {
+    public static synchronized List getAnalysisList() {
         int finalIndex=packetsList.size();
         List listShallowCopy = new ArrayList(packetsList.subList(0, finalIndex));
         return listShallowCopy;
     }
+    
+    public static synchronized List getAnalysisListReference(int startIndex, int finalIndex) {
+        return packetsList.subList(0, finalIndex);
+    }
 
     //TODO ver si existe una mejor forma para clonar
-    public static List getPacketsAnalisysSublist(int start, int end) {
+    public static synchronized List getPacketsAnalisysSublist(int start, int end) {
         List packetList;
         if (end > getPacketsList().size()) {
             packetList = new ArrayList(packetsList.subList(start, getPacketsList().size()));
@@ -40,11 +44,11 @@ public class PacketsBuffer {
         return packetList;
     }
 
-    public static void addPacket(PcapPacket packet) {
+    public static synchronized void addPacket(PcapPacket packet) {
         getPacketsList().add(packet);
     }
 
-    public static void removeAnalysisList(List analysisList) {
+    public static synchronized void removeAnalysisList(List analysisList) {
         packetsList.removeAll(analysisList);
     }
 }

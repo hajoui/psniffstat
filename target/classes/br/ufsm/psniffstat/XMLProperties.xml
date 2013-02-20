@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : XMLProperties.xml
+    Created on : May 23, 2009, 11:25 AM
+    Author     : Tulkas
+    Description:
+        Purpose of the document follows.
+-->
+
+<sniff2DBData  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+               xmlns:ns0='http://xml.netbeans.org/schema/XMLProperties'
+               xsi:schemaLocation='http://xml.netbeans.org/schema/XMLProperties XMLProperties.xsd'>
+    <Sniffer>
+        <port>8999</port>
+        <intervalOfAnalysis>3</intervalOfAnalysis>
+        <ammountOfIntervals>-1</ammountOfIntervals>
+    </Sniffer>
+    <Database>
+        <dbName>mysql</dbName>
+        <hostName>localhost</hostName>
+        <port>3306</port>
+        <location>sniff</location>
+        <username>tuxtor</username>
+        <password>informatica</password>
+        <statusFat>1</statusFat>
+        <fatTableName>FAT</fatTableName>
+        <statusArchive>0</statusArchive>
+        <archiveTableName>arch</archiveTableName>
+    </Database>
+    <Filters>
+        <tcp>1</tcp>
+        <udp>1</udp>
+        <icmp>1</icmp>
+        <tcpAck>1</tcpAck>
+        <tcpFin>1</tcpFin>
+        <tcpSyn>1</tcpSyn>
+    </Filters>
+    <Sockets>
+        <status>0</status>
+        <port>7000</port>
+    </Sockets>
+</sniff2DBData>

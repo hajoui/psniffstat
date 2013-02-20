@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="http://xml.netbeans.org/schema/XMLProperties"
+            xmlns:tns="http://xml.netbeans.org/schema/XMLProperties"
+            elementFormDefault="qualified">
+    <xsd:element name="sniff2DBData">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="Sniffer">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="port"/>
+                            <xsd:element name="intervalOfAnalysis"/>
+                            <xsd:element name="ammountOfIntervals"/>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+                <xsd:element name="Database">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="dbName"/>
+                            <xsd:element name="hostName"/>
+                            <xsd:element name="port"/>
+                            <xsd:element name="location"/>
+                            <xsd:element name="username"/>
+                            <xsd:element name="password"/>
+                            <xsd:element name="statusFat"/>
+                            <xsd:element name="fatTableName"/>
+                            <xsd:element name="statusArchive"/>
+                            <xsd:element name="archiveTableName"/>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+                <xsd:element name="Filters">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="tcp"/>
+                            <xsd:element name="udp"/>
+                            <xsd:element name="icmp"/>
+                            <xsd:element name="tcpAck"/>
+                            <xsd:element name="tcpFin"/>
+                            <xsd:element name="tcpSyn"/>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+                <xsd:element name="Sockets">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="status"/>
+                            <xsd:element name="port"/>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+</xsd:schema>
